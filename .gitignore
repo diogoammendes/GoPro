@@ -1,0 +1,20 @@
+# GoPro Media Downloader
+
+node_modules/
+data/
+*.log
+.env
+.DS_Store
+
+# Build outputs
+client/build/
+client/node_modules/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+Thumbs.db

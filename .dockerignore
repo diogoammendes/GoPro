@@ -1,0 +1,35 @@
+node_modules/
+npm-debug.log
+.env
+.env.local
+.env.*.local
+data/
+*.log
+
+# Git
+.git
+.gitignore
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Client build (built in Docker)
+client/build/
+client/node_modules/
+
+# Documentation
+README.md
+CHANGELOG.md
+LICENSE
+
+# CI/CD
+.github/
+.travis.yml
+.gitlab-ci.yml

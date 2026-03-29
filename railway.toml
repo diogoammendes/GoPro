@@ -1,0 +1,17 @@
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
+
+[deploy]
+startCommand = "node server/index.js"
+healthcheckPath = "/api/auth/status"
+healthcheckTimeout = 100
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 3
+
+[env]
+NODE_ENV = "production"
+DATA_DIR = "/data"
+
+# Railway will automatically set PORT
+# GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET should be set via Railway dashboard
