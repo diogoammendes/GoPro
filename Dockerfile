@@ -1,6 +1,9 @@
 # Multi-stage build for production
 FROM node:18-alpine AS builder
 
+# Install build tools for native modules (better-sqlite3)
+RUN apk add --no-cache python3 make g++ sqlite
+
 # Set working directory
 WORKDIR /app
 
@@ -20,21 +23,19 @@ RUN cd client && CI=false npm run build
 # Production stage
 FROM node:18-alpine
 
-# Install dependencies for SQLite
-RUN apk add --no-cache python3 make g++ sqlite
+# Install SQLite library (runtime dependency)
+RUN apk add --no-cache sqlite-libs
 
 # Create app directory
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+# Copy node_modules from builder (includes compiled native modules)
+COPY --from=builder /app/node_modules ./node_modules
 
-# Install production dependencies
-RUN npm install --production
-
-# Copy built assets from builder
+# Copy built assets and server code
 COPY --from=builder /app/client/build ./client/build
 COPY --from=builder /app/server ./server
+COPY --from=builder /app/package.json ./
 
 # Create data directory for SQLite
 RUN mkdir -p /data
@@ -46,10 +47,6 @@ ENV DATA_DIR=/data
 
 # Expose port
 EXPOSE 3001
-
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:3001/api/auth/status', (r) => r.statusCode === 200 ? process.exit(0) : process.exit(1))"
 
 # Start the application
 CMD ["node", "server/index.js"]
