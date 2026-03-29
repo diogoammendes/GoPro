@@ -48,5 +48,9 @@ ENV DATA_DIR=/data
 # Expose port
 EXPOSE 3001
 
+# Copy and make start script executable
+COPY start.sh /app/start.sh
+RUN chmod +x /app/start.sh
+
 # Start the application
-CMD ["node", "server/test-startup.js"]
+CMD ["/app/start.sh"]
