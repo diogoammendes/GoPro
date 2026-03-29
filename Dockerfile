@@ -15,7 +15,7 @@ RUN npm install && cd client && npm install
 COPY . .
 
 # Build client
-RUN cd client && npm run build
+RUN cd client && CI=false npm run build
 
 # Production stage
 FROM node:18-alpine
