@@ -1,4 +1,20 @@
 require('dotenv').config();
+
+// Add error handling for startup
+process.on('uncaughtException', (err) => {
+    console.error('Uncaught Exception:', err);
+    process.exit(1);
+});
+
+process.on('unhandledRejection', (err) => {
+    console.error('Unhandled Rejection:', err);
+    process.exit(1);
+});
+
+console.log('Starting server...');
+console.log('Node version:', process.version);
+console.log('Working directory:', process.cwd());
+
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
@@ -6,9 +22,14 @@ const rateLimit = require('express-rate-limit');
 const path = require('path');
 const { v4: uuidv4 } = require('uuid');
 
+console.log('Loading modules...');
+
 const GoProAPI = require('./gopro-api');
 const CloudUploadManager = require('./cloud-upload');
+
+console.log('Loading database...');
 const db = require('./db');
+console.log('Database loaded successfully');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
