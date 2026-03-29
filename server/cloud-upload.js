@@ -1,8 +1,27 @@
 const { google } = require('googleapis');
-const { createWebdavClient } = require('webdav');
 const db = require('./db');
 const fs = require('fs');
 const path = require('path');
+
+// Dynamic import for ES module
+let createWebdavClient;
+let webdavReady = false;
+(async () => {
+    const webdav = await import('webdav');
+    createWebdavClient = webdav.createWebdavClient;
+    webdavReady = true;
+})();
+
+// Helper function to wait for webdav to be ready
+function waitForWebdav() {
+    return new Promise((resolve) => {
+        const check = () => {
+            if (webdavReady) resolve();
+            else setTimeout(check, 10);
+        };
+        check();
+    });
+}
 
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
@@ -134,6 +153,7 @@ class CloudUploadManager {
     // iCloud/WebDAV methods
     async connectICloud(username, password, serverUrl = 'https://webdav.icloud.com') {
         try {
+            await waitForWebdav();
             const client = createWebdavClient({
                 username,
                 password,
@@ -169,6 +189,7 @@ class CloudUploadManager {
             throw new Error('iCloud credentials not found');
         }
 
+        await waitForWebdav();
         const creds = JSON.parse(credentials.access_token);
         const client = createWebdavClient({
             username: creds.username,
@@ -186,6 +207,7 @@ class CloudUploadManager {
             throw new Error('iCloud credentials not found');
         }
 
+        await waitForWebdav();
         const creds = JSON.parse(credentials.access_token);
         const client = createWebdavClient({
             username: creds.username,
