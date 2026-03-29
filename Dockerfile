@@ -49,4 +49,4 @@ ENV DATA_DIR=/data
 EXPOSE 3001
 
 # Start the application
-CMD ["node", "server/index.js"]
+CMD ["node", "server/test-startup.js"]
