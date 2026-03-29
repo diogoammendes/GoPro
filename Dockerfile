@@ -9,7 +9,7 @@ COPY package*.json ./
 COPY client/package*.json ./client/
 
 # Install dependencies
-RUN npm ci && cd client && npm ci
+RUN npm install && cd client && npm install
 
 # Copy source code
 COPY . .
@@ -30,7 +30,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install production dependencies
-RUN npm ci --only=production
+RUN npm install --production
 
 # Copy built assets from builder
 COPY --from=builder /app/client/build ./client/build
