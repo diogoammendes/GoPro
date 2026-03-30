@@ -79,7 +79,7 @@ class GoProAPI {
                         order_direction: 'desc'
                     },
                     headers: {
-                        'Authorization': `Bearer ${this.accessToken}`
+                        'Cookie': `gp_access_token=${this.accessToken}; gp_user_id=${this.userId}`
                     }
                 }
             );
