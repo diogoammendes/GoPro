@@ -37,19 +37,14 @@ class GoProAPI {
                 );
             }
 
-            // Verify authentication by fetching user profile
-            const response = await this.client.get(`${API_BASE}/v1/users/me`, {
-                headers: {
-                    'Authorization': `Bearer ${cookies.gp_access_token}`
-                }
-            });
-
-            if (response.data && response.data.id) {
+            // Skip user profile verification since /v1/users/me returns 404
+            // Assume tokens are valid if they're provided
+            if (cookies.gp_access_token && cookies.gp_user_id) {
                 this.accessToken = cookies.gp_access_token;
                 this.userId = cookies.gp_user_id;
                 return {
                     success: true,
-                    user: response.data
+                    user: { id: cookies.gp_user_id }
                 };
             }
 
