@@ -70,7 +70,7 @@ class GoProAPI {
             }
 
             const response = await this.client.get(
-                `${API_BASE}/v1/users/${this.userId}/media`,
+                `${API_BASE}/v1/media`,
                 {
                     params: {
                         page: page,
