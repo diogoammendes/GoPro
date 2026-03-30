@@ -55,8 +55,7 @@ try {
             media_type TEXT,
             width INTEGER,
             height INTEGER,
-            cached_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (user_id) REFERENCES sessions(gp_user_id)
+            cached_at DATETIME DEFAULT CURRENT_TIMESTAMP
         );
 
         CREATE TABLE IF NOT EXISTS download_progress (
