@@ -29,27 +29,59 @@ class GoProAPI {
 
     async authenticateWithCookies(cookies) {
         try {
+            console.log('\n=== Authentication Process Details ===');
+            console.log('Cookies received:', Object.keys(cookies));
+            console.log('Access Token length:', cookies.gp_access_token?.length || 'missing');
+            console.log('User ID:', cookies.gp_user_id || 'missing');
+            
+            if (cookies.gp_access_token) {
+                console.log('Token starts with:', cookies.gp_access_token.substring(0, 50) + '...');
+            }
+
             // Set cookies in jar
             for (const [name, value] of Object.entries(cookies)) {
+                console.log(`Setting cookie: ${name} (length: ${value?.length || 0})`);
                 await this.jar.setCookie(
                     `${name}=${value}; Domain=.gopro.com; Path=/`,
                     BASE_URL
                 );
             }
 
+            console.log('Cookies set in jar successfully');
+
             // Skip user profile verification since /v1/users/me returns 404
             // Assume tokens are valid if they're provided
             if (cookies.gp_access_token && cookies.gp_user_id) {
+                console.log('Authentication: Tokens provided, assuming valid');
                 this.accessToken = cookies.gp_access_token;
                 this.userId = cookies.gp_user_id;
+                console.log('Authentication successful');
+                console.log('=== End Authentication Details ===\n');
                 return {
                     success: true,
                     user: { id: cookies.gp_user_id }
                 };
             }
 
+            console.log('Authentication: Missing required tokens');
+            console.log('=== End Authentication Details ===\n');
             return { success: false, error: 'Invalid credentials' };
         } catch (error) {
+            console.log('\n=== Authentication Error Details ===');
+            console.log('Error Type:', error.constructor.name);
+            console.log('Error Message:', error.message);
+            console.log('Error Code:', error.code);
+            
+            if (error.response) {
+                console.log('Response Status:', error.response.status);
+                console.log('Response Status Text:', error.response.statusText);
+                console.log('Response Headers:', error.response.headers);
+                console.log('Response Data:', error.response.data);
+            }
+            
+            console.log('Error Stack:', error.stack);
+            console.log('=== End Authentication Error Details ===\n');
+            
             console.error('Authentication error:', error.message);
             return { 
                 success: false, 
@@ -64,6 +96,27 @@ class GoProAPI {
                 throw new Error('Not authenticated');
             }
 
+            console.log('\n=== GoPro API Request Details ===');
+            console.log('Endpoint:', `${API_BASE}/v1/media`);
+            console.log('Method: GET');
+            console.log('Token length:', this.accessToken.length);
+            console.log('Token starts with:', this.accessToken.substring(0, 50) + '...');
+            console.log('User ID:', this.userId);
+            console.log('Query params:', { page, per_page: perPage, order_by: 'created_at', order_direction: 'desc' });
+
+            const headers = {
+                'Cookie': `gp_access_token=${this.accessToken}; gp_user_id=${this.userId}`
+            };
+
+            console.log('Request headers:', {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Accept': 'application/json, text/plain, */*',
+                'Accept-Language': 'en-US,en;q=0.9',
+                'Origin': 'https://plus.gopro.com',
+                'Referer': 'https://plus.gopro.com/',
+                ...headers
+            });
+
             const response = await this.client.get(
                 `${API_BASE}/v1/media`,
                 {
@@ -73,11 +126,16 @@ class GoProAPI {
                         order_by: 'created_at',
                         order_direction: 'desc'
                     },
-                    headers: {
-                        'Cookie': `gp_access_token=${this.accessToken}; gp_user_id=${this.userId}`
-                    }
+                    headers: headers
                 }
             );
+
+            console.log('\n=== GoPro API Response Details ===');
+            console.log('Status:', response.status);
+            console.log('Status Text:', response.statusText);
+            console.log('Response Headers:', response.headers);
+            console.log('Response Data Type:', typeof response.data);
+            console.log('Response Data:', JSON.stringify(response.data, null, 2));
 
             const media = response.data._embedded?.media || [];
             const pagination = {
@@ -93,6 +151,27 @@ class GoProAPI {
                 pagination
             };
         } catch (error) {
+            console.log('\n=== GoPro API Error Details ===');
+            console.log('Error Type:', error.constructor.name);
+            console.log('Error Message:', error.message);
+            console.log('Error Code:', error.code);
+            
+            if (error.response) {
+                console.log('Response Status:', error.response.status);
+                console.log('Response Status Text:', error.response.statusText);
+                console.log('Response Headers:', error.response.headers);
+                console.log('Response Data:', error.response.data);
+                console.log('Raw Response Text:', JSON.stringify(error.response.data, null, 2));
+            }
+            
+            if (error.request) {
+                console.log('Request was made but no response received');
+                console.log('Request Details:', error.request);
+            }
+            
+            console.log('Error Stack:', error.stack);
+            console.log('=== End Error Details ===\n');
+            
             console.error('Get media error:', error.message);
             return { 
                 success: false, 
